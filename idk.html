@@ -1,0 +1,780 @@
+<html><head><base href="https://websim.aiplease%20rebuild%20everything%20to%20look%20cleaner%20and%20it%20shuold%20look%20like%20a%20cyber%20punk%20interface"><title>Observation Deck - Window XXXXX</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  
+  :root {
+    --main-bg-color: #0a0a0a;
+    --panel-bg-color: rgba(0, 17, 0, 0.8);
+    --text-color: #00ff00;
+    --accent-color: #ff00ff;
+    --warning-color: #ff0000;
+    --info-color: #00ffff;
+    --historical-color: #ffff00;
+  }
+  
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Share Tech Mono', monospace;
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+  
+  .container {
+    display: grid;
+    grid-template-columns: 2fr 1fr 400px;
+    grid-template-rows: auto 1fr 1fr;
+    gap: 10px;
+    height: 100vh;
+    padding: 10px;
+    box-sizing: border-box;
+    background: 
+      linear-gradient(0deg, rgba(0,255,0,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,0,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  header {
+    grid-column: 1 / -1;
+    background: var(--panel-bg-color);
+    padding: 10px;
+    border: 2px solid var(--text-color);
+    box-shadow: 0 0 10px var(--text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  h1, h2, h3 {
+    margin: 0;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  
+  h1 { font-size: 24px; }
+  h2 { font-size: 18px; }
+  h3 { font-size: 16px; }
+  
+  #threat-meter {
+    font-size: 18px;
+  }
+  
+  .panel {
+    background: var(--panel-bg-color);
+    border: 2px solid var(--text-color);
+    box-shadow: 0 0 10px var(--text-color);
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .panel-header {
+    background: rgba(0, 255, 0, 0.2);
+    padding: 5px;
+    margin: -10px -10px 10px -10px;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  #protector-updates { grid-row: 2; grid-column: 1 / 2; }
+  #feed { grid-row: 3; grid-column: 1; }
+  #right-panel { grid-row: 2 / 4; grid-column: 2; display: flex; flex-direction: column; }
+  #spinning-k-section { grid-row: 2 / 4; grid-column: 3; }
+  
+  #window-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+  
+  #window-details > div {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #window-details p {
+    margin: 0;
+    line-height: 1.2;
+  }
+  
+  #pnk-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .pnk-cell {
+    border: 1px solid var(--text-color);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    height: 120px;
+    background: rgba(0, 255, 0, 0.1);
+  }
+  
+  .pnk-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pnk-description {
+    font-size: 10px;
+    text-align: center;
+    margin-top: 5px;
+  }
+  
+  .message, .protector-message, .custom-message {
+    border: 1px solid var(--text-color);
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 12px;
+    background: rgba(0, 255, 0, 0.05);
+  }
+  
+  .meta, .pnk-info {
+    font-size: 10px;
+    color: var(--info-color);
+    margin-top: 5px;
+  }
+  
+  .protector-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 10px;
+  }
+  
+  .neutralized-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  #pnk-interference {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.3);
+    color: #ffffff;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    text-align: center;
+    z-index: 1000;
+    text-shadow: 2px 2px 4px var(--warning-color);
+  }
+  
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--main-bg-color); }
+  ::-webkit-scrollbar-thumb { background: var(--text-color); }
+  
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  .blink { animation: blink 1s infinite; }
+  
+  @keyframes glitch {
+    0% { text-shadow: 0.05em 0 0 var(--info-color), -0.03em -0.04em 0 var(--accent-color), 0.025em 0.04em 0 var(--historical-color); }
+    15% { text-shadow: 0.05em 0 0 var(--info-color), -0.03em -0.04em 0 var(--accent-color), 0.025em 0.04em 0 var(--historical-color); }
+    16% { text-shadow: -0.05em -0.025em 0 var(--info-color), 0.025em 0.035em 0 var(--accent-color), -0.05em -0.05em 0 var(--historical-color); }
+    49% { text-shadow: -0.05em -0.025em 0 var(--info-color), 0.025em 0.035em 0 var(--accent-color), -0.05em -0.05em 0 var(--historical-color); }
+    50% { text-shadow: 0.05em 0.035em 0 var(--info-color), 0.03em 0 0 var(--accent-color), 0 -0.04em 0 var(--historical-color); }
+    99% { text-shadow: 0.05em 0.035em 0 var(--info-color), 0.03em 0 0 var(--accent-color), 0 -0.04em 0 var(--historical-color); }
+    100% { text-shadow: -0.05em 0 0 var(--info-color), -0.025em -0.04em 0 var(--accent-color), -0.04em -0.025em 0 var(--historical-color); }
+  }
+  
+  .glitch { animation: glitch 1s linear infinite; }
+  
+  #spinning-k-content {
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text x="50%" y="50%" font-family="Share Tech Mono, monospace" font-size="30" fill="rgba(0,255,0,0.1)" text-anchor="middle" dy=".35em">K</text></svg>');
+    background-repeat: repeat;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .field-report, .protector-comment {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--text-color);
+    padding: 10px;
+    margin-top: 10px;
+    font-style: italic;
+  }
+  
+  .protector-comment { background: rgba(0, 255, 255, 0.1); border-color: var(--info-color); color: var(--info-color); }
+  
+  .warning { background-color: rgba(255, 0, 0, 0.1); border-color: var(--warning-color); }
+  .warning h2 { color: var(--warning-color); }
+  
+  .historical { color: var(--historical-color); }
+  .current-event { color: var(--text-color); }
+  .informational { color: var(--info-color); }
+  
+  .protector-name {
+    color: var(--accent-color);
+    text-shadow: 0 0 10px var(--accent-color);
+    font-weight: bold;
+  }
+  
+  .protector-location {
+    color: var(--info-color);
+    font-size: 0.8em;
+    margin-left: 5px;
+  }
+  
+  @keyframes screen-glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-10px, 10px); }
+    40% { transform: translate(-50px, -10px); }
+    60% { transform: translate(50px, 50px); }
+    80% { transform: translate(-20px, -50px); }
+    100% { transform: translate(0); }
+  }
+  
+  .screen-glitch { animation: screen-glitch 0.2s infinite; }
+  
+  @keyframes flash-bars {
+    0%, 100% { background-image: linear-gradient(0deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%), linear-gradient(90deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%); }
+    25% { background-image: linear-gradient(90deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%), linear-gradient(180deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%); }
+    50% { background-image: linear-gradient(180deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%), linear-gradient(270deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%); }
+    75% { background-image: linear-gradient(270deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%), linear-gradient(0deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%, #fff 100%); }
+  }
+  
+  .flash-bars { animation: flash-bars 0.5s steps(4, end) infinite; background-size: 40px 40px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1 id="panel-title" class="glitch">Observation Deck - Window <span id="window-id"></span></h1>
+    <div id="threat-meter">Total Destruction: <span id="destruction-percentage" class="blink">0</span>%</div>
+    <div id="window-details">
+      <div>
+        <p><strong>Sector:</strong> <span id="sector"></span></p>
+        <p><strong>Coordinates:</strong> <span id="coordinates"></span></p>
+      </div>
+      <div>
+        <p><strong>Observer:</strong> <span id="observer"></span></p>
+        <p><strong>Shift:</strong> <span id="shift"></span></p>
+      </div>
+      <div>
+        <p><strong>Local Time:</strong> <span id="local-time"></span></p>
+        <p><strong>Quantum Stability:</strong> <span id="quantum-stability"></span></p>
+      </div>
+    </div>
+  </header>
+  
+  <div id="protector-updates" class="panel">
+    <div class="panel-header">Protector Updates</div>
+    <div id="protector-feed">
+      <!-- Protector messages will be dynamically inserted here -->
+    </div>
+  </div>
+  
+  <div id="feed" class="panel">
+    <div class="panel-header">Threat Feed</div>
+    <div id="scroll-content">
+      <!-- Messages will be dynamically inserted here -->
+    </div>
+  </div>
+  
+  <div id="right-panel">
+    <div id="pnk-entities" class="panel">
+      <div class="panel-header">PNK Entities</div>
+      <div id="pnk-grid">
+        <!-- PNK entities will be dynamically inserted here -->
+      </div>
+    </div>
+    
+    <div id="entity-info" class="panel">
+      <div class="panel-header">Entity Information</div>
+      <div id="entity-content">
+        No PNK entity has been neutralized yet.
+      </div>
+    </div>
+  </div>
+  
+  <div id="spinning-k-section" class="panel">
+    <div class="panel-header">Anomaly Monitor</div>
+    <div id="spinning-k-content">
+      <!-- Spinning K removed -->
+    </div>
+  </div>
+</div>
+
+<div id="pnk-interference">RECONNECTING...<br>PNK INTERFERENCE ACTIVE</div>
+
+<script>
+const protectors = [
+  "sam pepper", "meloneatingmelon", "DBR666", "umop3plsdn", "punkweri",
+  "enigmanowl", "Axl", "bigvelvet", "sooofunny37", "ipupyou",
+  "xxdevonxx", "xwendyx", "Graphiks", "Reach", "Anbu", "Lacertae", "Redacted User", "Ret", "Phantom_Rainbow", "Phineas_the_Coder", "Howdy8", "Aki", "Joann", "Shidetamori", "B.Stone", "Woj", "LiberatorNasty", "Peanut", "Pancakes"
+];
+
+const protectorLocations = {};
+
+protectors.forEach(protector => {
+  protectorLocations[protector] = generateEarthDesignation();
+});
+
+const protectorDescriptions = {
+  "sam pepper": "The Prankster Protector, wielding chaos and laughter as weapons against PNK entities.",
+  "meloneatingmelon": "Guardian of Fruity Realities, using melon-based powers to preserve themultiverse's balance.",
+  "DBR666": "The Demonic Bowler, rolling strikes across dimensions to knock out PNK threats.",
+  "umop3plsdn": "Master of Inverted Perspectives, flipping realities to confuse and disorient PNK forces.",
+  "punkweri": "The Anarchic Defender, channeling rebellious energy to disrupt PNK's orderly destruction.",
+  "enigmanowl": "Keeper of Cosmic Wisdom, hooting riddles that unravel the very fabric of PNK consciousness.",
+  "Axl": "The Multiversal Rockstar, shredding reality-bending solos that repel PNK invasions.",
+  "bigvelvet": "Curator of Soft Realities, wrapping vulnerable timelines in protective, luxurious velvet.",
+  "sooofunny37": "The Quantum Comedian, using interdimensional humor to make PNK entities laugh out of existence.",
+  "ipupyou": "Summoner of the Canine Cosmos, commanding an army of interdimensional puppies to overwhelm PNK with cuteness.",
+  "xxdevonxx": "The Digital Deviant, hacking through reality's source code to patch vulnerabilities against PNK intrusions.",
+  "xwendyx": "The Windy Whisperer, manipulating multiversal currents to blow away PNK threats.",
+  "Graphiks": "The Visual Virtuoso, painting new realities to overwrite PNK-corrupted dimensions.",
+  "Reach": "The Cosmic Connector, bridging gaps between realities to strengthen the multiverse's defenses.",
+  "Anbu": "The Shadow Operative, stealthily eliminating PNK entities from the darkest corners of existence.",
+  "Lacertae": "The Lizard Luminary, shapeshifting through dimensions to outmaneuver PNK forces.",
+  "Redacted User": "The Unknown Variable, whose very existence confounds PNK prediction algorithms.",
+  "Ret": "The Retro Rewinder, reversing time in localized pockets to undo PNK damage.",
+  "Phantom_Rainbow": "The Spectral Spectrum Wielder, using prismatic powers to disperse PNK energy signatures.",
+  "Phineas_the_Coder": "The Algorithm Alchemist, transmuting malicious PNK code into benign data streams.",
+  "Howdy8": "The Octal Outlaw, lassoing rogue PNK entities with loops of binary code.",
+  "Aki": "The Autumn Arbiter, harnessing the cycle of seasons to renew PNK-ravaged realities.",
+  "Joann": "The Jovial Juxtaposer, combining incompatible realities to create PNK-proof amalgamations.",
+  "Shidetamori": "The Ethereal Gardener, cultivating reality-stabilizing flora across the multiverse.",
+  "B.Stone": "The Quantum Quarry Master, mining the bedrock of existence for reality-anchoring minerals.",
+  "Woj": "The Warrior of Jests, whose battle cry of laughter shatters PNK morale across dimensions.",
+  "LiberatorNasty": "The Freedom Fighter of the Filthy, weaponizing chaos and disorder against PNK's rigid destructions.",
+  "Peanut": "The Nutty Neutralizer, cracking PNK defenses with shells of improbability and kernels of chaos.",
+  "Pancakes": "The Flapjack Phenom, stacking layers of reality to create impenetrable barriers against PNK incursions."
+};
+
+const protectorMessages = {
+  "DBR666": "Using my rolls to squash the enemy.",
+  "sam pepper": "Using my pink thong to protect my horny fans.",
+  "meloneatingmelon": "Just eating melons leave me alone.",
+  "umop3plsdn": "Flipping the multiverse upside down to confuse PNK entities.",
+  "punkweri": "Unleashing chaotic punk energy to disrupt PNK's orderly destruction.",
+  "enigmanowl": "Hooting enigmatic riddles that scramble PNK consciousness.",
+  "Axl": "Shredding reality-bending guitar solos to repel PNK invasions.",
+  "bigvelvet": "Wrapping realities in protective velvet to cushion against PNK attacks.",
+  "sooofunny37": "Weaponizing interdimensional comedy to make PNK entities laugh themselves out of existence.",
+  "ipupyou": "Summoning an army of interdimensional puppies to overload PNK with cuteness.",
+  "xxdevonxx": "Deploying anti-PNK firewalls across the multiverse's neural network.",
+  "xwendyx": "Stirring up a category 5 multiversal hurricane to blow away PNK forces.",
+  "Graphiks": "Rendering a new reality overlay to obscure PNK vision.",
+  "Reach": "Extending multiversal bridges to evacuate endangered realities.",
+  "Anbu": "Infiltrating PNK strongholds under cover of interdimensional darkness.",
+  "Lacertae": "Morphing into a cosmic-sized lizard to devour PNK fleets.",
+  "Redacted User": "█████████ ██ ████████ PNK ██████████.",
+  "Ret": "Rewinding local timelines to reverse PNK corruption.",
+  "Phantom_Rainbow": "Unleashing a spectrum nova to disrupt PNK energy signatures.",
+  "Phineas_the_Coder": "Recoding the laws of physics to make them PNK-incompatible.",
+  "Howdy8": "Rounding up stray PNK bits with my binary lasso.",
+  "Aki": "Inducing rapid season cycles to rejuvenate PNK-withered realities.",
+  "Joann": "Mashing up realities to create a PNK-proof patchwork universe.",
+  "Shidetamori": "Planting seeds of new dimensions to replace those lost to PNK.",
+  "B.Stone": "Reinforcing reality's foundations with newly mined quantum granite.",
+  "Woj": "Launching a barrage of interdimensional dad jokes at PNK forces.",
+  "LiberatorNasty": "Unleashing a tsunami of grime to gum up PNK's pristine destruction machines.",
+  "Peanut": "Deploying shells of improbability to crack PNK defenses wide open.",
+  "Pancakes": "Stacking reality layers to create the ultimate PNK-proof barrier."
+};
+
+const fieldReports = {
+  "DBR666": "Strike! A Chronos Eraser PNK entity was bowled into oblivion, saving countless timelines.",
+  "sam pepper": "Prank successful. PNK Vortex Disruptor confused by unexpected influx of rubber chickens.",
+  "meloneatingmelon": "Melon-based shield deployed. Reality Shredder's attempts fruitlessly deflected.",
+  "umop3plsdn": "Inverted a local space-time pocket. Paradox Amplifier now amplifying its own destruction.",
+  "punkweri": "Anarchy unleashed. Quantum Destabilizer destabilized by unpredictable energy surge.",
+  "enigmanowl": "Riddle delivered. Dimension Collapser's AI core overloaded trying to solve it.",
+  "Axl": "Guitar solo completed. Vortex Disruptor's wormholes harmonically sealed shut.",
+  "bigvelvet": "Velvet barrier erected. Chronos Eraser's temporal attacks softened to ineffectiveness.",
+  "sooofunny37": "Joke told. Reality Shredder laughed itself into a paradox and vanished.",
+  "ipupyou": "Puppy portal opened. Paradox Amplifier overwhelmed by cuteness overload.",
+  "xxdevonxx": "Firewall updated. Quantum Destabilizer's code rewritten as a harmless screensaver.",
+  "xwendyx": "Hurricane generated. Dimension Collapser blown apart to cosmic dust.",
+  "Graphiks": "New reality painted. Vortex Disruptor trapped in a two-dimensional plane.",
+  "Reach": "Bridge extended. Chronos Eraser isolated in a timeless void between realities.",
+  "Anbu": "Stealth mission complete. Reality Shredder's core extracted without detection.",
+  "Lacertae": "Shapeshifting successful. Paradox Amplifier consumed and neutralized.",
+  "Redacted User": "███████ ████████. ████ Quantum Destabilizer ██████████ ███████████.",
+  "Ret": "Rewind executed. Dimension Collapser's progress reversed to pre-activation state.",
+  "Phantom_Rainbow": "Spectrum nova unleashed. Vortex Disruptor's energy signature scattered across dimensions.",
+  "Phineas_the_Coder": "Physics recoded. Chronos Eraser now erases only dust bunnies, harmlessly.",
+  "Howdy8": "Binary lasso deployed. Reality Shredder entangled and shut down.",
+  "Aki": "Seasons accelerated. Paradox Amplifier withered away in rapidly advancing time.",
+  "Joann": "Realities juxtaposed. Quantum Destabilizer stable-ized into modern art installation.",
+  "Shidetamori": "Reality seeds planted. Dimension Collapser overgrown with existence-affirming flora.",
+  "B.Stone": "Quantum granite mined. Vortex Disruptor's foundations crumbled under new cosmic laws.",
+  "Woj": "Dad jokes unleashed. Chronos Eraser groaned out of existence from sheer corniness.",
+  "LiberatorNasty": "Grime tsunami released. Reality Shredder gummed up and grinding to a halt.",
+  "Peanut": "Improbability shells detonated. PNK Vortex Disruptor imploded under its own impossibility.",
+  "Pancakes": "Reality stack fortified. Dimension Collapser's attempts bounced off the syrupy barrier."
+};
+
+const protectorComments = {
+  "DBR666": "Another strike for the multiverse! These PNK entities are just cosmic bowling pins to me.",
+  "sam pepper": "Pranks and pink thongs, the ultimate weapons against multiversal destruction. Who knew?",
+  "meloneatingmelon": "One melon at a time, we'll preserve the fruity balance of all realities.",
+  "umop3plsdn": "˙uʍop ǝpᴉsdn ƃuᴉɥʇʎɹǝʌǝ dᴉlɟ I uǝɥʍ ʞNԀ ɹoɟ ƃuᴉʇsǝɹǝʇuᴉ ʎllɐǝɹ sʇǝƃ ʇI",
+  "punkweri": "Anarchy in the multiverse! PNK can't handle our chaotic defense methods!",
+  "enigmanowl": "Hoot's there? Not PNK anymore, that's for sure!",
+  "Axl": "Rock on, defenders! Our cosmic concert's just getting started!",
+  "bigvelvet": "Wrapping up another victory against PNK. Stay soft, stay safe!",
+  "sooofunny37": "Why did the PNK entity cross the interdimensional road? To get to the other side of oblivion!",
+  "ipupyou": "Who let the cosmic dogs out? We did! And PNK's running scared!",
+  "xxdevonxx": "Control-Alt-Delete PNK. Rebooting safer realities.",
+  "xwendyx": "Blow, winds, and crack your cheeks! PNK's castles made of sand fall in the sea, eventually.",
+  "Graphiks": "Another masterpiece painted over PNK's destruction. The multiverse is our canvas!",
+  "Reach": "Bridging gaps, connecting worlds, and disconnecting PNK from our realities.",
+  "Anbu": "Shadows whisper of our victories. PNK fears what it cannot see.",
+  "Lacertae": "Shape-shifted, stirred, and PNK shaken out of existence.",
+  "Redacted User": "██████ ███ ████████! PNK ███ ██ ████ ███ ██████.",
+  "Ret": "Rewind, replay, erase PNK. The past is our playground, the future our creation.",
+  "Phantom_Rainbow": "Painting PNK out of the picture with every color in the multiversal spectrum!",
+  "Phineas_the_Coder": "Debugging the multiverse, one PNK error at a time.",
+  "Howdy8": "Yeehaw! Rounded up another PNK varmint with my quantum lasso!",
+  "Aki": "Seasons change, leaves fall, and so does PNK's grip on our realities.",
+  "Joann": "Mix, match, and dispatch PNK! Our patchwork universe is holding strong!",
+  "Shidetamori": "Gardening the cosmos, pruning PNK, and cultivating new realities.",
+  "B.Stone": "Chiseling away at PNK's foundations. They'll crumble under the weight of our determination!",
+  "Woj": "Why did PNK fall into a black hole? Because the gravity of the situation was too much for them!",
+  "LiberatorNasty": "Cleaning up the multiverse, one filthy trick at a time. PNK didn't see this grime coming!",
+  "Peanut": "That's how we crack 'em! PNK's got nothing on our nutty defense strategies.",
+  "Pancakes": "Stack 'em high, watch 'em fall! PNK can't handle our sweet, syrupy fortifications."
+};
+
+const languages = [
+  "English", "Mandarin", "Hindi", "Spanish", "Arabic", "Bengali", "Russian", "Portuguese", "Urdu", "French",
+  "Binary", "Quantum Entanglementese", "Telepathic Waves", "Photonic Pulses", "Gravitational Ripples"
+];
+
+const pnkTypes = [
+  "Vortex Disruptor",
+  "Chronos Eraser",
+  "Reality Shredder",
+  "Paradox Amplifier",
+  "Quantum Destabilizer",
+  "Dimension Collapser"
+];
+
+const pnkDescriptions = {
+  "Vortex Disruptor": "Specializes in unraveling the fabric of space-time, creating unstable wormholes that threaten to collapse entire realities.",
+  "Chronos Eraser": "Targets the temporal flow of a universe, gradually erasing its past, present, and future from existence.",
+  "Reality Shredder": "Tears apart the fundamental laws of physics, causing chaotic breakdowns in the structure of reality itself.",
+  "Paradox Amplifier": "Magnifies temporal inconsistencies, creating cascading paradoxes that can unravel entire timelines.",
+  "Quantum Destabilizer": "Disrupts the quantum field, causing matter and energy to behave erratically and eventually dissipate.",
+  "Dimension Collapser": "Compresses spatial dimensions, slowly crushing a universe into a singularity of non-existence."
+};
+
+function generateWindowId() {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return Array.from({length: 5}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function generateEarthDesignation() {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return 'EARTH-' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function createMessageElement(message) {
+  const elem = document.createElement('div');
+  elem.className = 'message';
+  elem.innerHTML = `
+    <h2>${message.reality}</h2>
+    <p class="${message.class}">${message.content}</p>
+    <p class="meta">Language: ${message.language}</p>
+    <p class="meta">Planet Age: ${message.age} billion years</p>
+    <p class="meta">Quantum Stability: ${message.quantumStability}%</p>
+    <p class="pnk-info">Destruction Status: ${message.destructionStatus}%</p>
+  `;
+  return elem;
+}
+
+function createProtectorMessage(message) {
+  const elem = document.createElement('div');
+  elem.className = 'protector-message';
+  elem.innerHTML = `
+    <h3 class="protector-name">${message.reality} <span class="protector-location">${protectorLocations[message.reality]}</span></h3>
+    <p>${protectorDescriptions[message.reality]}</p>
+    <p class="current-event">${message.content}</p>
+    <div class="field-report">Field Report: ${fieldReports[message.reality]}</div>
+    <div class="protector-stats">
+      <span>Neutralized: ${message.neutralized}%</span>
+      <span>Threat Severity: ${message.threatSeverity}</span>
+      <span>Color: <span class="neutralized-color" style="background-color: ${message.color};"></span></span>
+    </div>
+    <p class="meta">Language: ${message.language}</p>
+    <p class="meta">Quantum Stability: ${message.quantumStability}%</p>
+  `;
+  return elem;
+}
+
+function createPNKEntity() {
+  const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#00ff00', '#0000ff'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  const type = pnkTypes[Math.floor(Math.random() * pnkTypes.length)];
+  const threat = Math.floor(Math.random() * 100);
+  
+  return {
+    color: color,
+    type: type,
+    threat: threat
+  };
+}
+
+function createPNKCell(entity) {
+  const cell = document.createElement('div');
+  cell.className = 'pnk-cell';
+  cell.innerHTML = `
+    <div class="pnk-icon" style="background-color: ${entity.color};">
+      <div style="width: 20px; height: 20px; background-color: #000000; border-radius: 50%;"></div>
+    </div>
+    <div class="pnk-description">
+      <p><strong>${entity.type}</strong></p>
+      <p>Threat Level: ${entity.threat}%</p>
+    </div>
+  `;
+  return cell;
+}
+
+function initializePNKGrid() {
+  const grid = document.getElementById('pnk-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const entity = createPNKEntity();
+    const cell = createPNKCell(entity);
+    grid.appendChild(cell);
+  }
+}
+
+let destructionPercentage = 0;
+let lastProtectorMessage = Date.now() - 10000;
+
+function killPNKEntity() {
+  const grid = document.getElementById('pnk-grid');
+  const cells = grid.getElementsByClassName('pnk-cell');
+  if (cells.length > 0) {
+    const randomIndex = Math.floor(Math.random() * cells.length);
+    cells[randomIndex].style.opacity = '0';
+    
+    const killedEntity = {
+      type: cells[randomIndex].querySelector('.pnk-description p:first-child').textContent.trim(),
+      threat: parseInt(cells[randomIndex].querySelector('.pnk-description p:last-child').textContent.split(':')[1]),
+      color: cells[randomIndex].querySelector('.pnk-icon').style.backgroundColor
+    };
+    
+    updateEntity(killedEntity);
+    
+    setTimeout(() => {
+      const newEntity = createPNKEntity();
+      const newCell = createPNKCell(newEntity);
+      newCell.style.opacity = '0';
+      grid.replaceChild(newCell, cells[randomIndex]);
+      
+      setTimeout(() => {
+        newCell.style.opacity = '1';
+      }, 50);
+    }, 1000);
+    
+    return killedEntity.color;
+  }
+  return null;
+}
+
+function updateEntity(entity) {
+  const entityInfo = document.getElementById('entity-content');
+  const randomProtector = protectors[Math.floor(Math.random() * protectors.length)];
+  entityInfo.innerHTML = `
+    <h3>Neutralized PNK Entity</h3>
+    <p><strong>Type:</strong> ${entity.type}</p>
+    <p><strong>Threat Level:</strong> ${entity.threat}%</p>
+    <p><strong>Color Signature:</strong> <span style="color:${entity.color}">■■■</span></p>
+    <p class="informational"><strong>Description:</strong> ${pnkDescriptions[entity.type]}</p>
+    <div class="protector-comment">
+      <p><strong class="protector-name">${randomProtector} <span class="protector-location">${protectorLocations[randomProtector]}</span></strong> says: "${protectorComments[randomProtector]}"</p>
+    </div>
+  `;
+}
+
+function addWarningMessage() {
+  const content = document.getElementById('scroll-content');
+  const warningMessages = [
+    "ALERT: Higgs field fluctuation detected in Sector Zeta-9. Prepare for localized changes in particle mass (Ref: CERN, 2012).",
+    "WARNING: Quantum decoherence cascade approaching critical levels in the Andromeda galaxy (Zurek, 2003).",
+    "CRITICAL: Multiversal membrane tension exceeding Planck-Wheeler threshold. Brane collision imminent (Randall & Sundrum, 1999).",
+    "CAUTION: Exotic matter concentrations rising in the Cygnus region. Potential for traversable wormhole formation (Morris & Thorne, 1988).",
+    "EMERGENCY: Vacuum decay bubble detected in neighboring universe. Expansion rate: 99.999% c (Coleman & De Luccia, 1980).",
+    "DANGER: Quantum tunneling event predicted in the galactic core. Prepare for spontaneous black hole formation (Hawking, 1975).",
+    "URGENT: Cosmic string network destabilizing in Sector Omega. Time dilation effects expected (Vilenkin & Shellard, 2000).",
+    "WARNING: Dark energy density spiking in local supercluster. Accelerated expansion may tear galactic structures apart (Perlmutter et al., 1999).",
+    "ALERT: Quantum foam turbulence at unprecedented levels. Spacetime fabric integrity compromised (Wheeler, 1955).",
+    "CAUTION: Parallel timeline convergence detected. Prepare for potential paradox cascade (Deutsch, 1991).",
+    "NOTICE: Holographic principle violation observed in distant quasar. Reality consistency checks advised (Susskind, 1995).",
+    "WARNING: Inflationary field instability detected. Potential for rapid universal expansion (Guth, 1981).",
+    "ALERT: Quantum entanglement network collapsing in Sector Epsilon. Prepare for communications blackout (Einstein, Podolsky & Rosen, 1935).",
+    "CRITICAL: Chronology protection conjecture failing in multiple localities. Closed timelike curves forming (Hawking, 1992).",
+    "EMERGENCY: False vacuum decay cascade initiating in neighboring braneworld (Guth & Farhi, 1987)."
+  ];
+  
+  const warningElem = document.createElement('div');
+  warningElem.className = 'message warning';
+  const selectedWarning = warningMessages[Math.floor(Math.random() * warningMessages.length)];
+  warningElem.innerHTML = `
+    <h2>MULTIVERSAL WARNING</h2>
+    <p class="current-event">${selectedWarning}</p>
+    <p class="meta">Priority: MAXIMUM</p>
+    <p class="meta">Source: Interdimensional Monitoring Station</p>
+    <p class="meta">Quantum Stability: ${Math.floor(Math.random() * 30)}%</p>
+  `;
+  content.insertBefore(warningElem, content.firstChild);
+  
+  if (content.children.length > 10) {
+    content.removeChild(content.lastChild);
+  }
+}
+
+function addMessage() {
+  const content = document.getElementById('scroll-content');
+  const protectorFeed = document.getElementById('protector-feed');
+  const currentTime = Date.now();
+  
+  if (currentTime - lastProtectorMessage >= 10000 && Math.random() < 0.3) {
+    const protector = protectors[Math.floor(Math.random() * protectors.length)];
+    const protectorMessage = protectorMessages[protector];
+    const neutralizedColor = killPNKEntity();
+    const threatSeverity = Math.floor(Math.random() * 10) + 1;
+    const message = {
+      reality: protector,
+      content: protectorMessage,
+      neutralized: Math.floor(Math.random() * 100),
+      threatSeverity: threatSeverity,
+      color: neutralizedColor || '#ffffff',
+      language: languages[Math.floor(Math.random() * languages.length)],
+      quantumStability: Math.floor(Math.random() * 100)
+    };
+    const protectorElem = createProtectorMessage(message);
+    protectorFeed.insertBefore(protectorElem, protectorFeed.firstChild);
+    destructionPercentage = Math.max(0, destructionPercentage - (11 - threatSeverity) * 2);
+    
+    lastProtectorMessage = currentTime;
+  } else if (Math.random() < 0.1) {
+    addWarningMessage();
+  } else {
+    const customMessages = [
+      { content: "Observation: The concept of PNK (Pink Noise Killers) originated from a misinterpretation of cosmic background radiation.", class: "historical" },
+      { content: "Historical note: The first recorded PNK incursion occurred in Reality Cluster C-137, leading to the formation of the Multiversal Defense Initiative.", class: "historical" },
+      { content: "Analysis: PNK entities seem to be drawn to realities with high concentrations of creative energy and technological advancement.", class: "informational" },
+      { content: "Theory: Some researchers propose that PNK may be a natural immune response of the multiverse to perceived 'reality infections'.", class: "informational" },
+      { content: "Discovery: Recent findings suggest that certain types of music can temporarily repel PNK entities, particularly genres heavy on bass and syncopation.", class: "informational" },
+      { content: "Warning: PNK activity has been observed to increase during periods of significant quantum fluctuations across multiple realities.", class: "current-event" },
+      { content: "Breakthrough: A team of interdimensional scientists has developed a prototype 'reality anchor' that may help stabilize affected universes.", class: "current-event" },
+      { content: "Phenomenon: In some cases, PNK-destroyed realities have been observed reforming into entirely new and unpredictable configurations.", class: "informational" },
+      { content: "Update: The Multiversal Council has officially classified PNK as a Class-Omega threat to the stability of the omniverse.", class: "current-event" },
+      { content: "Tactical advisory: Protectors are advised to focus on preserving 'seed realities' - those with the potential to spawn new universe clusters.", class: "current-event" },
+      { content: "Cultural impact: Some realities have developed religions around the concept of PNK, viewing them as cosmic purifiers or harbingers of universal renewal.", class: "informational" },
+      { content: "Economic forecast: The multiversal economy is experiencing significant disruption due to the loss of key trading hubs to PNK activity.", class: "current-event" },
+      { content: "Philosophical debate: The ethical implications of reality preservation versus natural multiversal evolution continue to be hotly debated.", class: "informational" },
+      { content: "Technological advancement: New 'quantum shielding' techniques show promise in deflecting low-level PNK incursions.", class: "current-event" },
+      { content: "Biological anomaly: Certain individuals across the multiverse display a natural resistance to PNK effects, dubbed 'Reality Anchors'.", class: "informational" },
+      { content: "Cosmic phenomenon: The appearance of 'reality bubbles' - pockets of stable space-time within PNK-destroyed areas - has been documented.", class: "informational" },
+      { content: "Multiversal weather report: A 'reality storm' is brewing in Sector 7G, all non-essential interdimensional travel is discouraged.", class: "current-event" },
+      { content: "Archaeological discovery: Artifacts from a civilization that apparently mastered PNK defense have been uncovered in a defunct timeline.", class: "historical" },
+      { content: "Public service announcement: Citizens are reminded to keep their personal reality stabilizers charged and within reach at all times.", class: "current-event" },
+      { content: "Breaking news: A coalition of advanced civilizations has announced Project OASIS, a plan to create PNK-proof safe zones across the multiverse.", class: "current-event" }
+    ];
+
+    const earthDesignation = generateEarthDesignation();
+    const selectedMessage = customMessages[Math.floor(Math.random() * customMessages.length)];
+    const message = {
+      reality: earthDesignation,
+      content: selectedMessage.content,
+      class: selectedMessage.class,
+      language: languages[Math.floor(Math.random() * languages.length)],
+      age: (Math.random() * 10 + 1).toFixed(2),
+      destructionStatus: Math.floor(Math.random() * 100),
+      quantumStability: Math.floor(Math.random() * 100)
+    };
+    const messageElem = createMessageElement(message);
+    content.insertBefore(messageElem, content.firstChild);
+  }
+  
+  if (content.children.length > 10) {
+    content.removeChild(content.lastChild);
+  }
+  if (protectorFeed.children.length > 3) {
+    protectorFeed.removeChild(protectorFeed.lastChild);
+  }
+
+  destructionPercentage = Math.min(100, destructionPercentage + Math.random() * 2);
+  document.getElementById('destruction-percentage').textContent = Math.floor(destructionPercentage);
+
+  if (Math.random() < 0.05) {
+    const interference = document.getElementById('pnk-interference');
+    interference.style.display = 'flex';
+    
+    document.body.classList.add('screen-glitch', 'flash-bars');
+    
+    setTimeout(() => {
+      interference.style.display = 'none';
+      document.body.classList.remove('screen-glitch', 'flash-bars');
+    }, Math.random() * 2000 + 1000);
+  }
+}
+
+function updateWindowDetails() {
+  document.getElementById('sector').textContent= `Sector ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}-${Math.floor(Math.random() * 100)}`;
+  document.getElementById('coordinates').textContent = `${(Math.random() * 1000).toFixed(2)}, ${(Math.random() * 1000).toFixed(2)}, ${(Math.random() * 1000).toFixed(2)}`;
+  document.getElementById('observer').textContent = `Agent ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(Math.random() * 1000)}`;
+  document.getElementById('shift').textContent = `${Math.floor(Math.random() * 24)}:00 - ${Math.floor(Math.random() * 24)}:00`;
+  
+  const now = new Date();
+  document.getElementById('local-time').textContent = now.toLocaleTimeString();
+  
+  const stability = (Math.random() * 100).toFixed(2);
+  const stabilityElement = document.getElementById('quantum-stability');
+  stabilityElement.textContent = `${stability}%`;
+  if (stability < 30) {
+    stabilityElement.style.color = 'var(--warning-color)';
+  } else if (stability < 70) {
+    stabilityElement.style.color = 'var(--text-color)';
+  } else {
+    stabilityElement.style.color = 'var(--info-color)';
+  }
+}
+
+document.getElementById('window-id').textContent = generateWindowId();
+initializePNKGrid();
+updateWindowDetails();
+setInterval(addMessage, 3000);
+setInterval(updateWindowDetails, 5000);
+</script>
+</body>
+</html>
